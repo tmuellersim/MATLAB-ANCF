@@ -4,9 +4,9 @@
 
 %%Input -------------------------------------------------------------------
 
-function grads = leafgrads(f,data);
+function [PositionVectorGradient] = leafgrads(f,data);
 
-tic             %   Start clock
+% tic             %   Start clock
 
 [m,n] = size(data);     %   Pull size of data matrix
 fprime = diff(f);       %   Differentiate function
@@ -22,18 +22,39 @@ for i=1:m
     rx = atrans*[1;0];                              %   Generate R_j,x
     rz = [0 -1;1 0]*rx;                             %   Generate R_j,z, assuming orthonormal to R_j,x
     
-    B = [row rx(1) 0 rx(2) 0 1 0 rz(1) 0 rz(2)];    %   Build nodal coordinates at node
+    B = [rx(1) 0 rx(2) 0 1 0 rz(1) 0 rz(2)];    %   Build nodal coordinates at node
     A = [A;B];                                      %   Cocatenate nodal coordinates to previous
     
     row = row+1;       %   Advance to next node
     
 end
 
-toc         %Display clock
+row = 1;
+D = [];
 
-disp(' Node R_j,xx R_j,xy R_j,xz R_j,yx R_j,yy R_j,yz R_j,zx R_j,zy R_j,zz ')
-disp(' ')
-disp(A)
+for i=16:-2:1
+    
+    for j=1:i
+        
+        C = [A(row,:) A((row+1),:)];
+        D = [D;C];
+        row = row+1;
+        
+    end
+    
+    row = row+1;
+    
+end
+    
+PositionVectorGradient = D;
+    
+    
+
+% toc         %Display clock
+
+%  disp(' Node R_j,xx R_j,xy R_j,xz R_j,yx R_j,yy R_j,yz R_j,zx R_j,zy R_j,zz ')
+%  disp(' ')
+%  disp(A)
 
     
 
